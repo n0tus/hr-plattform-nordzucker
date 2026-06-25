@@ -123,28 +123,26 @@ export default function NordzuckerHRPrototype() {
   };
 
 return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden relative">
+    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
       
-      {/* Mobile Menu Overlay */}
+      {/* 1. Mobile Menu Dark Overlay (Only visible when menu is open) */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-slate-900/60 z-20 md:hidden backdrop-blur-sm"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Responsive Sidebar */}
-      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-xl z-30 transform transition-transform duration-300 ease-in-out ${
+      {/* 2. Sidebar: FIXED on mobile (slides in/out), STATIC on desktop */}
+      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-30 transition-transform duration-300 ease-in-out ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
         <div className="p-6 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center text-white font-bold text-xl">
-              N
-            </div>
+            <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center text-white font-bold text-xl">N</div>
             <span className="text-xl font-bold text-white tracking-tight">HR Analytics</span>
           </div>
-          {/* Close button for mobile */}
+          {/* Close X Button (Mobile Only) */}
           <button className="md:hidden text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
             <X size={24} />
           </button>
@@ -163,24 +161,25 @@ return (
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden w-full">
+      {/* 3. Main Content Area (min-w-0 prevents flex children from blowing out width) */}
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         
-        {/* Responsive Header */}
+        {/* Header */}
         <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-sm shrink-0">
           <div className="flex items-center gap-3 w-full md:w-auto">
-            {/* Hamburger Button */}
-            <button className="md:hidden text-slate-600 hover:text-slate-900" onClick={() => setIsMobileMenuOpen(true)}>
+            {/* Hamburger Menu Button (Mobile Only) */}
+            <button className="md:hidden text-slate-600 hover:text-slate-900 p-1 -ml-1" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu size={24} />
             </button>
             <h1 className="text-lg md:text-2xl font-bold text-slate-800 truncate">
               {activeTab === 'dashboard' && 'Employer Branding Dashboard'}
               {activeTab === 'competitor' && 'Wettbewerbsvergleich'}
-              {activeTab === 'chat' && 'HR Copilot (RAG System)'}
-              {activeTab === 'actions' && 'KI-Handlungsfelder'}
+              {activeTab === 'chat' && 'HR Copilot'}
+              {activeTab === 'actions' && 'Handlungsfelder'}
             </h1>
           </div>
           
+          {/* Filters */}
           <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
             <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200 w-full md:w-auto">
               <Filter size={16} className="text-slate-500 ml-2 shrink-0" />
@@ -194,14 +193,10 @@ return (
                 <option value="admin">Nur Verwaltung / IT</option>
               </select>
             </div>
-
-            <div className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-600 border-l border-slate-200 pl-4">
-              <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Live</span>
-            </div>
           </div>
         </header>
 
-        {/* Scrollable Content Area */}
+        {/* Content Tabs */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <DashboardView department={department} />}
           {activeTab === 'competitor' && <CompetitorView />}
