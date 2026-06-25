@@ -6,7 +6,7 @@ import {
 import { 
   MessageSquare, BarChart2, Users, Target, Search, 
   Send, Bot, User, AlertCircle, CheckCircle, TrendingUp, Briefcase, Zap, Info, Clock,
-  Filter, BellRing, ChevronDown, Lightbulb
+  Filter, BellRing, ChevronDown, Lightbulb, Menu, X
 } from 'lucide-react';
 
 // Basis-Daten für Sentiment
@@ -62,92 +62,147 @@ const competitorData = [
 ];
 
 const reviewDatabase = [
-  { id: "REV-NZ-101", company: "Nordzucker", dept: "all", topic: "Bewerbungsprozess", text: "Nach über einem Monat völliger Funkstille kam ein Anruf... Letztlich erhielt ich eine Standardabsage ohne jegliches Feedback." },
-  { id: "REV-NZ-102", company: "Nordzucker", dept: "admin", topic: "Work-Life-Balance", text: "Gut am Arbeitgeber finde ich Hansefit, Home Office, Gleitzeit. Schlecht finde ich: mehr Mitarbeiterevents wären schön." },
-  { id: "REV-NZ-103", company: "Nordzucker", dept: "production", topic: "Arbeitsbedingungen", text: "Während der Rübenkampagne ist die Belastung extrem hoch. Schichtarbeit zehrt an den Nerven, aber die Bezahlung und Zulagen stimmen." },
-  { id: "REV-SZ-104", company: "Südzucker", dept: "all", topic: "Gehalt", text: "Eine gut dotierte betriebliche Altersversorgung (Direktzusage) und sehr flexible Variante der Gleitzeit." },
+  { 
+    id: "REV-NZ-001", company: "Nordzucker", dept: "admin", topic: "Work-Life-Balance", 
+    text: "Gut am Arbeitgeber finde ich Hansefit, Home Office, Gleitzeit. Schlecht finde ich: mehr Mitarbeiterevents." //[cite: 1]
+  },
+  { 
+    id: "REV-NZ-002", company: "Nordzucker", dept: "production", topic: "Arbeitsbedingungen", 
+    text: "Manchmal stressig, insbesondere in der Kampagne, aber alle ziehen an einem Strang. In der Kampagne Schichten, leider auch an Wochenenden und Feiertagen." //[cite: 1]
+  },
+  { 
+    id: "REV-NZ-003", company: "Nordzucker", dept: "production", topic: "Führung & Kultur", 
+    text: "Vor 2 Jahren gab es einen Wechsel in der Führungsebene und seitdem ist leider von den Werten an diesem Standort nichts mehr zu spüren." //[cite: 1]
+  },
+  { 
+    id: "REV-NZ-004", company: "Nordzucker", dept: "admin", topic: "Kommunikation", 
+    text: "Bessere Kommunikation zwischen den verschiedenen Abteilungen, gerade im Bereich Logistik/SCM ist das essenziell." //[cite: 1]
+  },
+  { 
+    id: "REV-NZ-005", company: "Nordzucker", dept: "all", topic: "Ausbildung", 
+    text: "Als Azubi habe ich sehr viele Vorteile, wie flexible Arbeitszeiten, Weihnachtsgeld und Urlaubsgeld. Die Ausbildung bietet eine große Vielfalt an Aufgaben." //[cite: 1]
+  },
+  { 
+    id: "REV-NZ-006", company: "Nordzucker", dept: "logistics", topic: "Prozesse", 
+    text: "Einige Fahrer berichten von mehreren Stunden Wartezeit bzw. nur einer Rampenbedienung, was den Ablauf verzögert." //[cite: 1]
+  }
 ];
 
 const ragScenarios = [
   {
-    keywords: ["bewerbung", "wartezeit", "recruiting", "prozess"],
-    retrievedDocs: [reviewDatabase[0]],
-    response: "Basierend auf der Analyse aktueller Bewerber-Bewertungen gibt es hier akuten Handlungsbedarf.\n\nHauptkritikpunkte:\n- Fehlende Transparenz und Struktur im Recruiting-Prozess.\n- Extrem lange Wartezeiten (teilweise über 2 Monate).\n\nHR-Priorität: Der Recruiting-Prozess muss verschlankt und mit automatisierten Status-Updates versehen werden."
+    keywords: ["kampagne", "produktion", "schicht", "stress"],
+    retrievedDocs: [reviewDatabase[1], reviewDatabase[2]],
+    response: "Die Analyse der Produktionsstandorte zeigt ein zweigeteiltes Bild.\n\nErkenntnisse:\n- Positiv: Starker Zusammenhalt im Team (Score 4-5)[cite: 1].\n- Kritisch: Hohe Belastung durch Wochenend- und Feiertagsschichten während der Rübenkampagne[cite: 1].\n- Risiko: Veränderungen in der Führungsebene haben an einigen Standorten zu einem gefühlten Verlust der Unternehmenswerte geführt[cite: 1].\n\nEmpfehlung: Gezielte Entlastungsangebote während der Kampagne prüfen und Führungskräfte-Entwicklung am Standort Klein Wanzleben priorisieren."
   },
   {
-    keywords: ["produktion", "kampagne", "schicht", "werk"],
-    retrievedDocs: [reviewDatabase[2]],
-    response: "Die Segmentierung für den Bereich 'Produktion' zeigt ein stark abweichendes Bild zur Verwaltung.\n\nErkenntnisse:\n- Die finanzielle Kompensation (Schichtzulagen) wird stark positiv bewertet (Score 4.3).\n- Die Arbeitsbelastung, besonders während der Rübenkampagne, drückt jedoch den Work-Life-Balance-Score signifikant nach unten (Score 3.2).\n\nEmpfehlung: Gesundheitsmanagement und Erholungsangebote gezielt für Schichtarbeiter bewerben (z.B. Werks-Physiotherapie)."
+    keywords: ["benefits", "homeoffice", "verwaltung", "hansefit"],
+    retrievedDocs: [reviewDatabase[0], reviewDatabase[3]],
+    response: "Die Rahmenbedingungen im Verwaltungsbereich werden hervorragend bewertet.\n\nStärken:\n- Hansefit, Home-Office und Gleitzeit (37h Woche) sind starke Treiber für Mitarbeiterzufriedenheit[cite: 1].\n\nHandlungsbedarf:\n- Wunsch nach mehr Teamevents[cite: 1].\n- Die abteilungsübergreifende Kommunikation (besonders zu Logistik/SCM) wird als verbesserungswürdig eingestuft[cite: 1]."
   },
   {
-    keywords: ["gehalt", "südzucker", "vergleich"],
-    retrievedDocs: [reviewDatabase[3]],
-    response: "Im direkten Vergleich zur Südzucker AG steht Nordzucker beim Gehalt sehr gut da. \n\nSüdzucker punktet jedoch extrem stark mit der direkten Kommunikation von Betriebsrenten (Direktzusage).\nEmpfehlung: Benefits wie betriebliche Altersvorsorge offensiver im Recruiting kommunizieren."
+    keywords: ["ausbildung", "azubi", "zukunft"],
+    retrievedDocs: [reviewDatabase[4]],
+    response: "Das Feedback zur Ausbildung ist herausragend (Score 5.0)[cite: 1].\n\nStärken im Employer Branding:\n- Hohe Jobsicherheit und spannende, abwechslungsreiche Aufgaben[cite: 1].\n- Sehr gute finanzielle Rahmenbedingungen (Weihnachts-/Urlaubsgeld, steigende Vergütung bis 1.273€ im 4. Lehrjahr)[cite: 1].\n\nEmpfehlung: Azubi-Testimonials zur Gewinnung neuer Talente nutzen."
+  },
+  {
+    keywords: ["logistik", "lkw", "wartezeit", "rampe"],
+    retrievedDocs: [reviewDatabase[5]],
+    response: "Externe Bewertungen durch LKW-Fahrer zeigen Engpässe auf.\n\nHauptkritik:\n- Teilweise extreme Wartezeiten (mehrere Stunden) und mangelnde Rampenbedienung[cite: 1].\nPositiv:\n- Freundliches Personal und guter 24/7-Betrieb[cite: 1].\n\nEmpfehlung: Prozessoptimierung bei der Be- und Entladung zur Vermeidung von Rückstaus."
   }
 ];
 
 export default function NordzuckerHRPrototype() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [department, setDepartment] = useState('all'); // Neues Filter-Feature
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-xl z-20">
-        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-          <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center text-white font-bold text-xl">
-            N
+  // Helper to close menu on mobile after clicking a link
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    setIsMobileMenuOpen(false);
+  };
+
+return (
+    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden relative">
+      
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Responsive Sidebar */}
+      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-xl z-30 transform transition-transform duration-300 ease-in-out ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
+        <div className="p-6 flex items-center justify-between border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center text-white font-bold text-xl">
+              N
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">HR Analytics</span>
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">HR AI Analytics</span>
+          {/* Close button for mobile */}
+          <button className="md:hidden text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+            <X size={24} />
+          </button>
         </div>
         
-        <nav className="flex-1 py-6 px-4 space-y-2">
-          <NavItem icon={<BarChart2 />} label="Dashboard (Live Data)" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-          <NavItem icon={<Target />} label="Wettbewerb" active={activeTab === 'competitor'} onClick={() => setActiveTab('competitor')} />
-          <NavItem icon={<MessageSquare />} label="KI-Assistent (RAG)" active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
-          <NavItem icon={<Lightbulb />} label="Strategie & Actions" active={activeTab === 'actions'} onClick={() => setActiveTab('actions')} />
+        <nav className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+          <NavItem icon={<BarChart2 />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => handleNavClick('dashboard')} />
+          <NavItem icon={<Target />} label="Wettbewerb" active={activeTab === 'competitor'} onClick={() => handleNavClick('competitor')} />
+          <NavItem icon={<MessageSquare />} label="KI-Assistent" active={activeTab === 'chat'} onClick={() => handleNavClick('chat')} />
+          <NavItem icon={<Lightbulb />} label="Actions" active={activeTab === 'actions'} onClick={() => handleNavClick('actions')} />
         </nav>
         
         <div className="p-4 border-t border-slate-800 text-xs text-slate-500">
           Status: <span className="text-emerald-400">Verbunden</span><br/>
-          Modell: RAG-GPT-4o (HR Tuned)
+          Modell: RAG-GPT-4o
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Header mit Filter */}
-        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center z-10 shadow-sm shrink-0">
-          <h1 className="text-2xl font-bold text-slate-800">
-            {activeTab === 'dashboard' && 'Employer Branding Dashboard'}
-            {activeTab === 'competitor' && 'Wettbewerbsvergleich'}
-            {activeTab === 'chat' && 'HR Copilot (RAG System)'}
-            {activeTab === 'actions' && 'KI-Empfohlene Handlungsfelder'}
-          </h1>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden w-full">
+        
+        {/* Responsive Header */}
+        <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-sm shrink-0">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Hamburger Button */}
+            <button className="md:hidden text-slate-600 hover:text-slate-900" onClick={() => setIsMobileMenuOpen(true)}>
+              <Menu size={24} />
+            </button>
+            <h1 className="text-lg md:text-2xl font-bold text-slate-800 truncate">
+              {activeTab === 'dashboard' && 'Employer Branding Dashboard'}
+              {activeTab === 'competitor' && 'Wettbewerbsvergleich'}
+              {activeTab === 'chat' && 'HR Copilot (RAG System)'}
+              {activeTab === 'actions' && 'KI-Handlungsfelder'}
+            </h1>
+          </div>
           
-          <div className="flex items-center gap-6">
-            {/* NEU: Globale Filter */}
-            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200">
-              <Filter size={16} className="text-slate-500 ml-2" />
+          <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200 w-full md:w-auto">
+              <Filter size={16} className="text-slate-500 ml-2 shrink-0" />
               <select 
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2"
+                className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2 w-full md:w-auto truncate"
               >
                 <option value="all">Alle Bereiche (Konzern)</option>
-                <option value="production">Nur Produktion / Werke</option>
+                <option value="production">Nur Produktion</option>
                 <option value="admin">Nur Verwaltung / IT</option>
               </select>
             </div>
 
-            <div className="flex items-center gap-2 text-sm font-medium text-slate-600 border-l border-slate-200 pl-6">
+            <div className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-600 border-l border-slate-200 pl-4">
               <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Live</span>
             </div>
           </div>
         </header>
 
-        {/* Content Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-8">
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <DashboardView department={department} />}
           {activeTab === 'competitor' && <CompetitorView />}
           {activeTab === 'chat' && <RagChatView />}
@@ -167,7 +222,7 @@ function NavItem({ icon, label, active, onClick }) {
       }`}
     >
       {React.cloneElement(icon, { size: 20 })}
-      <span className="font-medium">{label}</span>
+      <span className="font-medium truncate">{label}</span>
     </button>
   );
 }
