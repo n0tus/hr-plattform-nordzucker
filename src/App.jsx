@@ -1,34 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
-} from 'recharts';
-import { 
-  MessageSquare, BarChart2, Target, Search, 
-  Send, Bot, User, AlertCircle, CheckCircle, TrendingUp, Briefcase, Zap, Info, Clock, MapPin,
-  Filter, BellRing, Lightbulb, Database, Menu, X
-} from 'lucide-react';
-
-// Data imports abstracting the static prototype data
-import { 
-  baseSentiment, 
-  baseTopics, 
-  competitorData, 
-  regionalCompetitorData, 
-  reviewDatabase 
-} from './mockData';
+import React, { useState } from 'react';
+import { BarChart2, Target, MessageSquare, Lightbulb, Menu, X, Filter } from 'lucide-react';
+import DashboardView from './components/DashboardView';
+import CompetitorView from './components/CompetitorView';
+import RagChatView from './components/RagChatView';
+import ActionsView from './components/ActionsView';
 
 /**
  * Main Front-End Application Shell
- * Manages global state for navigation (activeTab) and data filtering (department).
- * Right now, a lot of the Findings of the System are hard-coded for the prototype. In a final implementation, these would be dynamically fetched from the backend and the LLM.
+ * Manages global routing (activeTab), filtering (department), and persists chat state.
  */
 export default function App() {
+  // Global Navigation & Filter State
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [department, setDepartment] = useState('all'); 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Navigation handler to ensure mobile menu closes upon selection
+  // Lifted Chat State (Ensures chat history isn't lost when switching tabs)
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'assistant', content: 'Guten Tag. Ich bin das Gemini RAG-System für Nordzucker. Mein Systemkontext ist geladen. Wie kann ich die aktuellen Unternehmensdaten für Sie auswerten?' }
+  ]);
+  const [chatDocs, setChatDocs] = useState([]);
+
   const handleNavClick = (tab) => {
     setActiveTab(tab);
     setIsMobileMenuOpen(false);
@@ -37,7 +29,6 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
       
-      {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/60 z-20 md:hidden backdrop-blur-sm"
@@ -46,7 +37,6 @@ export default function App() {
         />
       )}
 
-      {/* Primary Sidebar Navigation */}
       <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-30 transition-transform duration-300 ease-in-out ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
@@ -55,17 +45,18 @@ export default function App() {
             <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center text-white font-bold text-xl">N</div>
             <span className="text-xl font-bold text-white tracking-tight">HR Intelligence</span>
           </div>
-          <button className="md:hidden text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+          <button aria-label="Menü schließen" className="md:hidden text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
             <X size={24} />
           </button>
         </div>
-        {/* Right now hard-coded. For final implementation, actual connection to Model will be shown here. */}
+        
         <nav className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
           <NavItem icon={<BarChart2 />} label="Live Dashboard" active={activeTab === 'dashboard'} onClick={() => handleNavClick('dashboard')} />
           <NavItem icon={<Target />} label="Wettbewerb" active={activeTab === 'competitor'} onClick={() => handleNavClick('competitor')} />
           <NavItem icon={<MessageSquare />} label="KI-Assistent (RAG)" active={activeTab === 'chat'} onClick={() => handleNavClick('chat')} />
           <NavItem icon={<Lightbulb />} label="Strategie & Actions" active={activeTab === 'actions'} onClick={() => handleNavClick('actions')} />
         </nav>
+        
         <div className="p-5 border-t border-slate-800 text-xs text-slate-400 bg-slate-950/50 leading-relaxed">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -76,11 +67,10 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Main Viewport */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-sm shrink-0">
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <button className="md:hidden text-slate-600 hover:text-slate-900 p-1 -ml-1" onClick={() => setIsMobileMenuOpen(true)}>
+            <button aria-label="Menü öffnen" className="md:hidden text-slate-600 hover:text-slate-900 p-1 -ml-1" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu size={24} />
             </button>
             <h1 className="text-lg md:text-2xl font-bold text-slate-800 truncate">
@@ -91,17 +81,16 @@ export default function App() {
             </h1>
           </div>
           
-          {/* Global Filter - Rendered conditionally based on active view */}
           {activeTab === 'dashboard' && (
             <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
               <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200 w-full md:w-auto">
                 <Filter size={16} className="text-slate-500 ml-2 shrink-0" />
                 <select 
+                  aria-label="Abteilungsfilter"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2 w-full md:w-auto truncate"
                 >
-                  {/* Right now not fully implemented due to lack of data. In final product, data should only be shown depending on department */}
                   <option value="all">Alle Bereiche (Konzern)</option>
                   <option value="production">Nur Produktion / Werke</option>
                   <option value="admin">Nur Verwaltung / IT</option>
@@ -111,21 +100,23 @@ export default function App() {
           )}
         </header>
 
-        {/* Dynamic Component Rendering */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <DashboardView department={department} />}
           {activeTab === 'competitor' && <CompetitorView />}
-          {activeTab === 'chat' && <RagChatView />}
+          {activeTab === 'chat' && (
+            <RagChatView 
+              messages={chatMessages} 
+              setMessages={setChatMessages} 
+              retrievedDocs={chatDocs}
+              setRetrievedDocs={setChatDocs}
+            />
+          )}
           {activeTab === 'actions' && <ActionsView />}
         </div>
       </main>
     </div>
   );
 }
-
-// ----------------------------------------------------------------------
-// SUB-COMPONENTS
-// ----------------------------------------------------------------------
 
 function NavItem({ icon, label, active, onClick }) {
   return (
@@ -138,463 +129,5 @@ function NavItem({ icon, label, active, onClick }) {
       {React.cloneElement(icon, { size: 20 })}
       <span className="font-medium truncate">{label}</span>
     </button>
-  );
-}
-
-/**
- * Chat Interface Component
- * Simulates a Retrieval-Augmented Generation (RAG) conversational interface.
- */
-function RagChatView() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Guten Tag. Ich bin das Gemini RAG-System für Nordzucker. Mein Systemkontext ist geladen. Wie kann ich die aktuellen Unternehmensdaten für Sie auswerten?' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [retrievedDocs, setRetrievedDocs] = useState([]);
-  const chatEndRef = useRef(null);
-
-  // Auto-scroll to the latest message
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
-
-  const sendQuery = (queryText) => {
-    if (!queryText.trim()) return;
-
-    const userMsg = { role: 'user', content: queryText };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-    setRetrievedDocs([]);
-
-    // Simulate network latency and RAG retrieval processing
-    setTimeout(() => {
-      const lowerInput = queryText.toLowerCase();
-      let matchedDocs = [];
-      let aiResponseText = "Entschuldigung, für diese spezifische Anfrage habe ich im aktuellen Prototypen keine Daten hinterlegt. Bitte nutzen Sie den vorgesehenen Demo-Prompt für die Bewerberanalyse.";
-
-      // Keyword matching logic for prototype demonstration
-      if (lowerInput.includes("bewerber") || lowerInput.includes("prozess") || lowerInput.includes("warum")) {
-        matchedDocs = reviewDatabase; 
-        
-        {/* Hardcoded AI Response for Prototype Demonstration. Since there is no actual connection right now, we generated this manually based on the prompt */}
-        aiResponseText = `Basierend auf der Analyse aktueller, verifizierter Bewerber-Bewertungen aus unserer ChromaDB gibt es im Recruiting-Prozess der Nordzucker AG akuten Handlungsbedarf. Die Kritikpunkte konzentrieren sich auf folgende Kernbereiche:
-
-1. **Fehlende Transparenz:** Bewerber bemängeln das Ausbleiben von Zwischenbescheiden. Es wird von "völliger Funkstille" und nicht eingehaltenen Rückmeldefristen berichtet.
-2. **Extrem lange Wartezeiten:** Mehrere Kandidaten berichten von Prozessen, die sich über zwei Monate hinziehen, was zu hoher Frustration führt.
-3. **Mangelnde Wertschätzung:** Bewerber haben teilweise das Gefühl, "warmgehalten" oder als "zweite Wahl" behandelt zu werden.
-
-**Empfohlene HR-Priorität:** Der Auswahlprozess muss dringend verschlankt werden. Die Einführung automatisierter Status-Updates (SLAs) im Bewerbermanagementsystem ist essenziell, um Talentabwanderung an regionale Wettbewerber zu verhindern.`;
-      }
-
-      setRetrievedDocs(matchedDocs);
-      
-      // Simulate LLM generation time. Remove for final implementation when connected to actual model
-      setTimeout(() => {
-        setMessages(prev => [...prev, { role: 'assistant', content: aiResponseText }]);
-        setIsTyping(false);
-      }, 1500); 
-    }, 800); 
-  };
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-160px)] md:h-[calc(100vh-140px)] animate-in fade-in duration-500">
-      <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-        
-        {/* Chat History Container */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50/50">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`flex gap-3 md:gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot size={16} className="text-emerald-700" />
-                </div>
-              )}
-              
-              <div className={`px-4 md:px-5 py-3 md:py-4 rounded-2xl text-sm max-w-[90%] md:max-w-[85%] shadow-sm ${
-                msg.role === 'user' 
-                  ? 'bg-slate-800 text-white rounded-br-none' 
-                  : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none whitespace-pre-wrap leading-relaxed'
-              }`}>
-                {msg.content}
-              </div>
-
-              {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 mt-1">
-                  <User size={16} className="text-slate-600" />
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {/* Loading Indicator */}
-          {isTyping && (
-            <div className="flex gap-4 justify-start">
-               <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot size={16} className="text-emerald-700" />
-                </div>
-                <div className="px-5 py-4 rounded-2xl bg-white border border-slate-200 rounded-bl-none flex gap-2 items-center shadow-sm">
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-                  <span className="text-xs text-slate-500 ml-2 font-medium hidden md:inline">Verarbeite Kontext...</span>
-                </div>
-            </div>
-          )}
-          <div ref={chatEndRef} />
-        </div>
-
-        {/* Input Area. This is the demo question for the Model connection*/}
-        <div className="p-4 md:p-5 bg-white border-t border-slate-200">
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
-            <button 
-              onClick={() => sendQuery("Warum kritisieren Bewerber den Prozess?")}
-              className="whitespace-nowrap flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-sm font-semibold hover:bg-emerald-100 transition shadow-sm"
-            >
-              <AlertCircle size={16} />"Warum kritisieren Bewerber den Prozess?"
-            </button>
-          </div>
-
-          <div className="flex gap-2 md:gap-3">
-            <input 
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && sendQuery(input)}
-              placeholder="Query parameter..."
-              className="flex-1 px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
-            />
-            <button 
-              onClick={() => sendQuery(input)}
-              disabled={!input.trim() || isTyping}
-              className="bg-emerald-600 text-white px-4 md:px-5 py-3 rounded-xl font-medium hover:bg-emerald-700 transition disabled:opacity-50 flex items-center justify-center shadow-sm"
-            >
-              <Send size={18} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* RAG Context Panel */}
-      <div className="space-y-6 overflow-y-auto">
-        <div className="bg-slate-900 text-white rounded-xl shadow-lg p-6">
-          <h3 className="font-bold flex items-center gap-2 mb-3 text-emerald-400"><Zap size={18}/> RAG Transparenz</h3>
-          <p className="text-sm text-slate-300 leading-relaxed">
-            LLM-Antworten werden durch Vektordatenbankabfragen (ChromaDB) geerdet, um deterministische und nachvollziehbare Ergebnisse zu gewährleisten.
-          </p>
-        </div>
-
-        {retrievedDocs.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-right duration-500">
-            <h3 className="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wider flex items-center gap-2">
-              <Database size={16} className="text-blue-500"/> 
-              Extrahierte Metadaten
-            </h3>
-            <div className="space-y-4">
-              {retrievedDocs.map((doc, idx) => (
-                <div key={idx} className="bg-blue-50 border border-blue-100 rounded-lg p-4 relative">
-                   <div className="absolute -left-2 -top-2 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-sm">
-                    {idx + 1}
-                  </div>
-                  <div className="flex justify-between items-center mb-2 pl-2">
-                    <span className="text-xs font-bold bg-blue-200 text-blue-800 px-2 py-0.5 rounded">
-                      {doc.source}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-medium">
-                      {doc.date}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-700 italic pl-2">"{doc.text}"</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Dashboard View
- * Renders high-level KPIs and sentiment analysis charts based on department filters.
- */
-function DashboardView({ department }) {
-  // Static KPI definitions mapping to the department state
-  const kpis = {
-    all: { score: '3.8', rec: '88%', top: 'Arbeitsbed.', crit: 'Bewerbung', trend: [3.7, 3.7, 3.8, 3.8, 3.8, 4.1] },
-    production: { score: '3.6', rec: '76%', top: 'Gehalt', crit: 'Work-Life', trend: [3.5, 3.5, 3.4, 3.6, 3.6, 3.6] },
-    admin: { score: '4.0', rec: '94%', top: 'Work-Life', crit: 'Karriere', trend: [3.9, 3.9, 4.0, 4.0, 4.0, 4.1] }
-  };
-  
-  const currentKpi = kpis[department];
-  
-  // Format trend array into chart-compatible objects
-  const trendData = currentKpi.trend.map((score, i) => ({ 
-    month: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun'][i], 
-    score 
-  }));
-
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Predictive Alert Banner */}
-      {department === 'production' && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-4 text-amber-800 shadow-sm items-start">
-          <BellRing className="shrink-0 text-amber-600 animate-bounce" />
-          <div>
-            <h4 className="font-bold flex items-center gap-2">KI-Frühwarnung (Predictive Alert)</h4>
-            <p className="text-sm mt-1">Die NLP-Analyse erkennt einen <b>24%igen Anstieg negativer Phrasen</b> im Zusammenhang mit der kommenden Rübenkampagne in den Werk-Bewertungen. Empfehlung: Präventive Kommunikation zur Personalplanung starten.</p>
-          </div>
-        </div>
-      )}
-
-      {/* KPI Metrics Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <KPICard title="Kununu Score (Filter)" value={currentKpi.score} icon={<Search className="text-blue-500" />} trend="Ø Branche: 3.5" />
-        <KPICard title="Weiterempfehlung" value={currentKpi.rec} icon={<CheckCircle className="text-emerald-500" />} trend="Verifizierte Daten" />
-        <KPICard title="Top Stärke" value={currentKpi.top} icon={<TrendingUp className="text-emerald-500" />} trend="Aus Text-Mining" />
-        <KPICard title="Kritisches Feld" value={currentKpi.crit} icon={<AlertCircle className="text-red-500" />} trend="Prio HR-Maßnahme" isCritical={true} />
-      </div>
-
-      {/* Chart Visualizations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold mb-1 text-slate-800">Stimmung</h3>
-          <p className="text-xs text-slate-500 mb-4">Basis: Freitexte der letzten 12 Monate</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={baseSentiment[department]} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                  {baseSentiment[department].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: '8px' }}/>
-                <Legend verticalAlign="bottom" height={36}/>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold mb-1 text-slate-800">Trend Score (Letzte 6 Monate)</h3>
-          <p className="text-xs text-slate-500 mb-4">Mitarbeiterzufriedenheit im Zeitverlauf</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                <XAxis dataKey="month" tick={{fontSize: 12}} axisLine={false} tickLine={false} />
-                <YAxis domain={[3.0, 5.0]} tick={{fontSize: 12}} axisLine={false} tickLine={false}/>
-                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none' }}/>
-                <Line type="monotone" dataKey="score" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2">
-          <h3 className="text-lg font-bold mb-1 text-slate-800">Themen-Cluster (Stärken & Schwächen)</h3>
-          <p className="text-xs text-slate-500 mb-4">Prozentuale Verteilung von Positiv/Negativ in Bewertungen</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={baseTopics[department]} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                <XAxis dataKey="topic" tick={{fontSize: 10}} axisLine={false} tickLine={false} />
-                <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false}/>
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }}/>
-                <Legend />
-                <Bar dataKey="positiv" name="Positiv" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} maxBarSize={50} />
-                <Bar dataKey="negativ" name="Kritisch" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={50} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function KPICard({ title, value, icon, trend, isCritical = false }) {
-  return (
-    <div className={`bg-white p-5 rounded-xl shadow-sm border ${isCritical ? 'border-red-200 bg-red-50/20' : 'border-slate-100'} hover:shadow-md transition-shadow`}>
-      <div className="flex justify-between items-start mb-3">
-        <h4 className="text-slate-500 font-medium text-sm">{title}</h4>
-        <div className={`p-2 rounded-lg shrink-0 ${isCritical ? 'bg-red-100' : 'bg-slate-50'}`}>{icon}</div>
-      </div>
-      <div className={`text-2xl md:text-3xl font-bold mb-1 ${isCritical ? 'text-red-600' : 'text-slate-800'}`}>{value}</div>
-      <div className={`text-xs font-medium ${isCritical ? 'text-red-500' : 'text-slate-400'}`}>{trend}</div>
-    </div>
-  );
-}
-
-/**
- * Competitor Analysis View
- * Visualizes benchmarking data against industry and regional peers.
- */
-function CompetitorView() {
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex gap-4 text-blue-800 shadow-sm items-start">
-        <Info className="shrink-0 mt-0.5" />
-        <div>
-          <h4 className="font-bold">Marktdaten & Standort-Analysen</h4>
-          <p className="text-sm mt-1">Nordzucker dominiert im Industrie-Branchenvergleich. Der Regional-Vergleich zeigt jedoch eine hohe Konkurrenzsituation bei Fachkräften am Hauptstandort Braunschweig.</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 overflow-x-auto">
-          <div className="flex justify-between items-center mb-4 min-w-[500px]">
-            <h3 className="text-lg font-bold text-slate-800">Industrie-Benchmark: Direkter Wettbewerb</h3>
-          </div>
-          <div className="h-80 mt-4 min-w-[500px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={competitorData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="subject" tick={{fontSize: 10, fill: '#64748b'}} />
-                <YAxis domain={[0, 5]} tick={{fontSize: 12, fill: '#64748b'}} />
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
-                <Bar dataKey="Nordzucker" fill="#10b981" radius={[4, 4, 0, 0]} barSize={25} />
-                <Bar dataKey="Südzucker" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={25} />
-                <Bar dataKey="PfeiferLangen" name="Pfeifer & Langen" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={25} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2"><Target size={18}/> Industrie-USPs</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm">
-                <CheckCircle size={16} className="text-emerald-500 mt-0.5 shrink-0"/> 
-                <span><b>Arbeitsbedingungen (4.2)</b><br/><span className="text-slate-500 text-xs">Nordzucker schlägt hier Südzucker deutlich.</span></span>
-              </li>
-              <li className="flex items-start gap-2 text-sm">
-                <CheckCircle size={16} className="text-emerald-500 mt-0.5 shrink-0"/> 
-                <span><b>Work-Life-Balance (4.1)</b><br/><span className="text-slate-500 text-xs">Klarer Vorteil durch Hansefit & Homeoffice.</span></span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2"><AlertCircle size={18}/> Angriffsfläche</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm">
-                <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0"/> 
-                <span><b>Karrierewege (3.5)</b><br/><span className="text-slate-500 text-xs">Südzucker schneidet hier leicht besser ab (3.6).</span></span>
-              </li>
-              <li className="flex items-start gap-2 text-sm">
-                <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0"/> 
-                <span><b>Kommunikation (3.5)</b><br/><span className="text-slate-500 text-xs">Besonders Azubis klagen über mangelnden Informationsfluss.</span></span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 relative overflow-hidden overflow-x-auto">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
-          <div className="flex justify-between items-center mb-4 min-w-[500px]">
-            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <MapPin size={20} className="text-indigo-500"/> Regionaler Talent-Wettbewerb (Braunschweig)
-            </h3>
-          </div>
-          <div className="h-80 mt-4 min-w-[500px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={regionalCompetitorData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="subject" tick={{fontSize: 10, fill: '#64748b'}} />
-                <YAxis domain={[0, 5]} tick={{fontSize: 12, fill: '#64748b'}} />
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
-                <Bar dataKey="Nordzucker" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar dataKey="VW_FS" name="VW Financial Services" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar dataKey="Siemens" name="Siemens Mobility" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar dataKey="NewYorker" name="NewYorker" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={20} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Actionable Insights View
- * Maps aggregated NLP data into HR strategy recommendations.
- */
-function ActionsView() {
-  return (
-    <div className="max-w-5xl animate-in fade-in duration-500 space-y-6">
-      <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">Data to Value Pipeline</h2>
-        <p className="text-sm md:text-base text-slate-600">Aus der Menge an Bewertungen hat die KI folgende strategische Initiativen abgeleitet.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1.5 h-full bg-red-500"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-red-50 rounded-lg text-red-600 shrink-0"><Clock size={24}/></div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-base md:text-lg">Bewerber-Experience reparieren</h3>
-              <span className="text-xs font-medium text-slate-500">Prio: Kritisch</span>
-            </div>
-          </div>
-          <p className="text-sm text-slate-600 mb-4">Daten zeigen verheerende Bewertungen im Bewerbungsprozess. Bewerber warten bis zu 2 Monate auf Feedback.</p>
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-            <h4 className="text-xs font-bold text-slate-700 mb-2 uppercase">Sofort-Maßnahmen:</h4>
-            <ul className="text-sm text-slate-600 space-y-1 list-disc pl-4">
-              <li>"7-Tage-Feedback-Regel" (SLA) einführen.</li>
-              <li>Automatisierte Status-Mails aktivieren.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600 shrink-0"><Briefcase size={24}/></div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-base md:text-lg">Offensive: Work-Life-Balance</h3>
-              <span className="text-xs font-medium text-slate-500">Prio: Hoch</span>
-            </div>
-          </div>
-          <p className="text-sm text-slate-600 mb-4">Nordzucker führt die Industrie beim Thema Arbeitsbedingungen an. Wettbewerber P&L ist deutlich schwächer.</p>
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-            <h4 className="text-xs font-bold text-slate-700 mb-2 uppercase">Maßnahmen:</h4>
-            <ul className="text-sm text-slate-600 space-y-1 list-disc pl-4">
-              <li>"Hansefit, Gleitzeit, Homeoffice" als Kern-Headline in Stellenanzeigen nutzen.</li>
-              <li>Mitarbeiter-Testimonial-Kampagne starten.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden md:col-span-2">
-          <div className="absolute top-0 right-0 w-1.5 h-full bg-blue-500"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-50 rounded-lg text-blue-600 shrink-0"><TrendingUp size={24}/></div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-base md:text-lg">Transparente Gehaltsentwicklungen</h3>
-              <span className="text-xs font-medium text-slate-500">Prio: Mittel</span>
-            </div>
-          </div>
-          <p className="text-sm text-slate-600 mb-4">Das Grundgehalt wird stark gelobt, aber Mitarbeiter empfinden Gehaltserhöhungen als langwierig und intransparent.</p>
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-            <h4 className="text-xs font-bold text-slate-700 mb-2 uppercase">Maßnahmen:</h4>
-            <ul className="text-sm text-slate-600 space-y-1 list-disc pl-4">
-              <li>Strukturierte Jahresgespräche mit standardisierten Gehalts-Review-Prozessen etablieren.</li>
-              <li>Aufzeigen klarer Leistungs-Meilensteine für außertarifliche Boni.</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </div>
   );
 }
