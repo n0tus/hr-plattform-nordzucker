@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @import "tailwindcss";
 
 @layer utilities {
@@ -10,8 +9,3 @@
     scrollbar-width: none;
   }
 }
-=======
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
->>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
