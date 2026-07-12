@@ -1,8 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Fix for hiding scrollbars but keeping functionality in the prompt area */
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;

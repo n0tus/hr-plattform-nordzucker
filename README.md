@@ -1,6 +1,8 @@
 # DBE_Nordzucker_HR_Plattform_Gruppe_12
 # React + Vite
 
+This prototype was initially created using Gemini Code. Further improvements and changes were added manually. The Prototype currently consists of a Front-End Dashboard. The extraction using Web-Scraper and storage using ChromaDB were not implemented. The Dashboard shows examplatory data currently hard-coded in the mockData.js File. 
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

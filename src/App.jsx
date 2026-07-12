@@ -1,5 +1,3 @@
-JavaScript
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -11,70 +9,26 @@ import {
   Filter, BellRing, Lightbulb, Database, Menu, X
 } from 'lucide-react';
 
-const baseSentiment = {
-  all: [
-    { name: 'Positiv', value: 88, color: '#10b981' },
-    { name: 'Neutral', value: 8, color: '#fbbf24' },
-    { name: 'Negativ', value: 4, color: '#ef4444' }
-  ],
-  production: [
-    { name: 'Positiv', value: 75, color: '#10b981' },
-    { name: 'Neutral', value: 15, color: '#fbbf24' },
-    { name: 'Negativ', value: 10, color: '#ef4444' }
-  ],
-  admin: [
-    { name: 'Positiv', value: 92, color: '#10b981' },
-    { name: 'Neutral', value: 5, color: '#fbbf24' },
-    { name: 'Negativ', value: 3, color: '#ef4444' }
-  ]
-};
+// Data imports abstracting the static prototype data
+import { 
+  baseSentiment, 
+  baseTopics, 
+  competitorData, 
+  regionalCompetitorData, 
+  reviewDatabase 
+} from './mockData';
 
-const baseTopics = {
-  all: [
-    { topic: 'Arbeitsbed.', positiv: 84, negativ: 16 },
-    { topic: 'Work-Life', positiv: 82, negativ: 18 },
-    { topic: 'Gehalt', positiv: 84, negativ: 16 },
-    { topic: 'Karriere', positiv: 70, negativ: 30 },
-    { topic: 'Bewerbung', positiv: 48, negativ: 52 },
-  ],
-  production: [
-    { topic: 'Arbeitsbed.', positiv: 65, negativ: 35 }, 
-    { topic: 'Work-Life', positiv: 60, negativ: 40 }, 
-    { topic: 'Gehalt', positiv: 88, negativ: 12 }, 
-    { topic: 'Karriere', positiv: 50, negativ: 50 },
-    { topic: 'Bewerbung', positiv: 55, negativ: 45 },
-  ],
-  admin: [
-    { topic: 'Arbeitsbed.', positiv: 95, negativ: 5 }, 
-    { topic: 'Work-Life', positiv: 92, negativ: 8 },
-    { topic: 'Gehalt', positiv: 75, negativ: 25 }, 
-    { topic: 'Karriere', positiv: 78, negativ: 22 },
-    { topic: 'Bewerbung', positiv: 45, negativ: 55 },
-  ]
-};
-
-const competitorData = [
-  { subject: 'Work-Life-Balance', Nordzucker: 4.1, Südzucker: 3.7, PfeiferLangen: 3.3, fullMark: 5 },
-  { subject: 'Gehalt & Soziales', Nordzucker: 4.2, Südzucker: 4.3, PfeiferLangen: 3.8, fullMark: 5 },
-  { subject: 'Karriere/Weiterbildung', Nordzucker: 3.5, Südzucker: 3.6, PfeiferLangen: 2.9, fullMark: 5 },
-  { subject: 'Kultur & Kollegen', Nordzucker: 3.9, Südzucker: 3.8, PfeiferLangen: 3.1, fullMark: 5 },
-  { subject: 'Kommunikation', Nordzucker: 3.5, Südzucker: 3.3, PfeiferLangen: 2.7, fullMark: 5 },
-  { subject: 'Arbeitsbedingungen', Nordzucker: 4.2, Südzucker: 3.9, PfeiferLangen: 3.4, fullMark: 5 },
-];
-
-const regionalCompetitorData = [
-  { subject: 'Gesamt-Score', Nordzucker: 3.8, VW_FS: 4.2, Siemens: 3.9, NewYorker: 3.1, fullMark: 5 },
-  { subject: 'Work-Life-Balance', Nordzucker: 4.1, VW_FS: 4.0, Siemens: 3.8, NewYorker: 2.8, fullMark: 5 },
-  { subject: 'Gehalt & Soziales', Nordzucker: 4.2, VW_FS: 4.5, Siemens: 4.0, NewYorker: 3.0, fullMark: 5 },
-  { subject: 'Karriere & Aufstieg', Nordzucker: 3.5, VW_FS: 3.9, Siemens: 3.7, NewYorker: 3.1, fullMark: 5 },
-  { subject: 'Kultur', Nordzucker: 3.9, VW_FS: 4.1, Siemens: 3.7, NewYorker: 2.9, fullMark: 5 },
-];
-
+/**
+ * Main Front-End Application Shell
+ * Manages global state for navigation (activeTab) and data filtering (department).
+ * Right now, a lot of the Findings of the System are hard-coded for the prototype. In a final implementation, these would be dynamically fetched from the backend and the LLM.
+ */
 export default function App() {
-  const [activeTab, setActiveTab] = useState('chat'); 
+  const [activeTab, setActiveTab] = useState('dashboard'); 
   const [department, setDepartment] = useState('all'); 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Navigation handler to ensure mobile menu closes upon selection
   const handleNavClick = (tab) => {
     setActiveTab(tab);
     setIsMobileMenuOpen(false);
@@ -83,13 +37,16 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
       
+      {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/60 z-20 md:hidden backdrop-blur-sm"
           onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
         />
       )}
 
+      {/* Primary Sidebar Navigation */}
       <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-30 transition-transform duration-300 ease-in-out ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
@@ -102,14 +59,13 @@ export default function App() {
             <X size={24} />
           </button>
         </div>
-        
+        {/* Right now hard-coded. For final implementation, actual connection to Model will be shown here. */}
         <nav className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
           <NavItem icon={<BarChart2 />} label="Live Dashboard" active={activeTab === 'dashboard'} onClick={() => handleNavClick('dashboard')} />
           <NavItem icon={<Target />} label="Wettbewerb" active={activeTab === 'competitor'} onClick={() => handleNavClick('competitor')} />
           <NavItem icon={<MessageSquare />} label="KI-Assistent (RAG)" active={activeTab === 'chat'} onClick={() => handleNavClick('chat')} />
           <NavItem icon={<Lightbulb />} label="Strategie & Actions" active={activeTab === 'actions'} onClick={() => handleNavClick('actions')} />
         </nav>
-        
         <div className="p-5 border-t border-slate-800 text-xs text-slate-400 bg-slate-950/50 leading-relaxed">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -120,6 +76,7 @@ export default function App() {
         </div>
       </aside>
 
+      {/* Main Viewport */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-sm shrink-0">
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -134,6 +91,7 @@ export default function App() {
             </h1>
           </div>
           
+          {/* Global Filter - Rendered conditionally based on active view */}
           {activeTab === 'dashboard' && (
             <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
               <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200 w-full md:w-auto">
@@ -143,6 +101,7 @@ export default function App() {
                   onChange={(e) => setDepartment(e.target.value)}
                   className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2 w-full md:w-auto truncate"
                 >
+                  {/* Right now not fully implemented due to lack of data. In final product, data should only be shown depending on department */}
                   <option value="all">Alle Bereiche (Konzern)</option>
                   <option value="production">Nur Produktion / Werke</option>
                   <option value="admin">Nur Verwaltung / IT</option>
@@ -152,6 +111,7 @@ export default function App() {
           )}
         </header>
 
+        {/* Dynamic Component Rendering */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <DashboardView department={department} />}
           {activeTab === 'competitor' && <CompetitorView />}
@@ -162,6 +122,10 @@ export default function App() {
     </div>
   );
 }
+
+// ----------------------------------------------------------------------
+// SUB-COMPONENTS
+// ----------------------------------------------------------------------
 
 function NavItem({ icon, label, active, onClick }) {
   return (
@@ -177,21 +141,20 @@ function NavItem({ icon, label, active, onClick }) {
   );
 }
 
+/**
+ * Chat Interface Component
+ * Simulates a Retrieval-Augmented Generation (RAG) conversational interface.
+ */
 function RagChatView() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Guten Tag. Ich bin das Gemini RAG-System für Nordzucker. Mein "Wissens-Gedächtnis" ist geladen und bereit. Wie kann ich die aktuellen Unternehmensdaten für Sie auswerten?' }
+    { role: 'assistant', content: 'Guten Tag. Ich bin das Gemini RAG-System für Nordzucker. Mein Systemkontext ist geladen. Wie kann ich die aktuellen Unternehmensdaten für Sie auswerten?' }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [retrievedDocs, setRetrievedDocs] = useState([]);
   const chatEndRef = useRef(null);
 
-  const reviewDatabase = [
-    { id: 1, source: "Kununu (Bewerber)", date: "Juni 2024", text: "Nach über einem Monat völliger Funkstille kam ein Anruf mit Rückfragen. Letztlich erhielt ich eine Standardabsage ohne jegliches Feedback, also insgesamt über zwei Monate nach meiner Bewerbung. Keine Zwischenbescheide oder transparente Kommunikation. Stattdessen hatte ich am Ende das deutliche Gefühl, nur 'zweite Wahl' gewesen zu sein und warmgehalten zu werden." },
-    { id: 2, source: "Kununu (Bewerber)", date: "Januar 2025", text: "Es wird der 200% Kandidat gesucht - beim heutigen Arbeitsmarkt allerdings sollte man sich schneller entscheiden. Ganz ehrlich: Man braucht keine zwei Monate, um über eine Bewerbung zu entscheiden. Schon gar nicht, wenn in der Ausschreibung 'ab sofort' steht." },
-    { id: 3, source: "Kununu (Bewerber)", date: "Juli 2023", text: "Positiver Eindruck, den das Unternehmen nach dem zweiten Gespräch ins Gegenteil verändert hat. Dem Bewerber eine Rückmeldung zukommen lassen, wenn das seitens des Unternehmens im Gespräch schon so avisiert wird, sollte wohl drin sein." }
-  ];
-
+  // Auto-scroll to the latest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
@@ -205,14 +168,17 @@ function RagChatView() {
     setIsTyping(true);
     setRetrievedDocs([]);
 
+    // Simulate network latency and RAG retrieval processing
     setTimeout(() => {
       const lowerInput = queryText.toLowerCase();
       let matchedDocs = [];
-      let aiResponseText = "Entschuldigung, für diese spezifische Anfrage habe ich im aktuellen Offline-Prototypen keine Daten hinterlegt. Bitte nutzen Sie den vorgesehenen Demo-Prompt für die Bewerberanalyse.";
+      let aiResponseText = "Entschuldigung, für diese spezifische Anfrage habe ich im aktuellen Prototypen keine Daten hinterlegt. Bitte nutzen Sie den vorgesehenen Demo-Prompt für die Bewerberanalyse.";
 
+      // Keyword matching logic for prototype demonstration
       if (lowerInput.includes("bewerber") || lowerInput.includes("prozess") || lowerInput.includes("warum")) {
         matchedDocs = reviewDatabase; 
         
+        {/* Hardcoded AI Response for Prototype Demonstration. Since there is no actual connection right now, we generated this manually based on the prompt */}
         aiResponseText = `Basierend auf der Analyse aktueller, verifizierter Bewerber-Bewertungen aus unserer ChromaDB gibt es im Recruiting-Prozess der Nordzucker AG akuten Handlungsbedarf. Die Kritikpunkte konzentrieren sich auf folgende Kernbereiche:
 
 1. **Fehlende Transparenz:** Bewerber bemängeln das Ausbleiben von Zwischenbescheiden. Es wird von "völliger Funkstille" und nicht eingehaltenen Rückmeldefristen berichtet.
@@ -224,6 +190,7 @@ function RagChatView() {
 
       setRetrievedDocs(matchedDocs);
       
+      // Simulate LLM generation time. Remove for final implementation when connected to actual model
       setTimeout(() => {
         setMessages(prev => [...prev, { role: 'assistant', content: aiResponseText }]);
         setIsTyping(false);
@@ -234,6 +201,8 @@ function RagChatView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-160px)] md:h-[calc(100vh-140px)] animate-in fade-in duration-500">
       <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+        
+        {/* Chat History Container */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50/50">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex gap-3 md:gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -259,6 +228,7 @@ function RagChatView() {
             </div>
           ))}
           
+          {/* Loading Indicator */}
           {isTyping && (
             <div className="flex gap-4 justify-start">
                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-1">
@@ -268,21 +238,21 @@ function RagChatView() {
                   <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
                   <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                   <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-                  <span className="text-xs text-slate-500 ml-2 font-medium hidden md:inline">Gemini verarbeitet Kontext...</span>
+                  <span className="text-xs text-slate-500 ml-2 font-medium hidden md:inline">Verarbeite Kontext...</span>
                 </div>
             </div>
           )}
           <div ref={chatEndRef} />
         </div>
 
+        {/* Input Area. This is the demo question for the Model connection*/}
         <div className="p-4 md:p-5 bg-white border-t border-slate-200">
           <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
             <button 
               onClick={() => sendQuery("Warum kritisieren Bewerber den Prozess?")}
               className="whitespace-nowrap flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-sm font-semibold hover:bg-emerald-100 transition shadow-sm"
             >
-              <AlertCircle size={16} />
-              "Warum kritisieren Bewerber den Prozess?"
+              <AlertCircle size={16} />"Warum kritisieren Bewerber den Prozess?"
             </button>
           </div>
 
@@ -292,7 +262,7 @@ function RagChatView() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendQuery(input)}
-              placeholder="Frage an die Daten..."
+              placeholder="Query parameter..."
               className="flex-1 px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
             />
             <button 
@@ -306,11 +276,12 @@ function RagChatView() {
         </div>
       </div>
 
+      {/* RAG Context Panel */}
       <div className="space-y-6 overflow-y-auto">
         <div className="bg-slate-900 text-white rounded-xl shadow-lg p-6">
           <h3 className="font-bold flex items-center gap-2 mb-3 text-emerald-400"><Zap size={18}/> RAG Transparenz</h3>
           <p className="text-sm text-slate-300 leading-relaxed">
-            Um Halluzinationen zu verhindern, greift das Modell auf echte Textfragmente aus unserer Vektordatenbank (ChromaDB) zu.
+            LLM-Antworten werden durch Vektordatenbankabfragen (ChromaDB) geerdet, um deterministische und nachvollziehbare Ergebnisse zu gewährleisten.
           </p>
         </div>
 
@@ -318,7 +289,7 @@ function RagChatView() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-right duration-500">
             <h3 className="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wider flex items-center gap-2">
               <Database size={16} className="text-blue-500"/> 
-              Extrahierte Fakten (Kontext)
+              Extrahierte Metadaten
             </h3>
             <div className="space-y-4">
               {retrievedDocs.map((doc, idx) => (
@@ -345,7 +316,12 @@ function RagChatView() {
   );
 }
 
+/**
+ * Dashboard View
+ * Renders high-level KPIs and sentiment analysis charts based on department filters.
+ */
 function DashboardView({ department }) {
+  // Static KPI definitions mapping to the department state
   const kpis = {
     all: { score: '3.8', rec: '88%', top: 'Arbeitsbed.', crit: 'Bewerbung', trend: [3.7, 3.7, 3.8, 3.8, 3.8, 4.1] },
     production: { score: '3.6', rec: '76%', top: 'Gehalt', crit: 'Work-Life', trend: [3.5, 3.5, 3.4, 3.6, 3.6, 3.6] },
@@ -353,10 +329,16 @@ function DashboardView({ department }) {
   };
   
   const currentKpi = kpis[department];
-  const trendData = currentKpi.trend.map((score, i) => ({ month: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun'][i], score }));
+  
+  // Format trend array into chart-compatible objects
+  const trendData = currentKpi.trend.map((score, i) => ({ 
+    month: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun'][i], 
+    score 
+  }));
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Predictive Alert Banner */}
       {department === 'production' && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-4 text-amber-800 shadow-sm items-start">
           <BellRing className="shrink-0 text-amber-600 animate-bounce" />
@@ -367,6 +349,7 @@ function DashboardView({ department }) {
         </div>
       )}
 
+      {/* KPI Metrics Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <KPICard title="Kununu Score (Filter)" value={currentKpi.score} icon={<Search className="text-blue-500" />} trend="Ø Branche: 3.5" />
         <KPICard title="Weiterempfehlung" value={currentKpi.rec} icon={<CheckCircle className="text-emerald-500" />} trend="Verifizierte Daten" />
@@ -374,6 +357,7 @@ function DashboardView({ department }) {
         <KPICard title="Kritisches Feld" value={currentKpi.crit} icon={<AlertCircle className="text-red-500" />} trend="Prio HR-Maßnahme" isCritical={true} />
       </div>
 
+      {/* Chart Visualizations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold mb-1 text-slate-800">Stimmung</h3>
@@ -444,13 +428,17 @@ function KPICard({ title, value, icon, trend, isCritical = false }) {
   );
 }
 
+/**
+ * Competitor Analysis View
+ * Visualizes benchmarking data against industry and regional peers.
+ */
 function CompetitorView() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex gap-4 text-blue-800 shadow-sm items-start">
         <Info className="shrink-0 mt-0.5" />
         <div>
-          <h4 className="font-bold">Echte Marktdaten & Standort-Analysen</h4>
+          <h4 className="font-bold">Marktdaten & Standort-Analysen</h4>
           <p className="text-sm mt-1">Nordzucker dominiert im Industrie-Branchenvergleich. Der Regional-Vergleich zeigt jedoch eine hohe Konkurrenzsituation bei Fachkräften am Hauptstandort Braunschweig.</p>
         </div>
       </div>
@@ -536,6 +524,10 @@ function CompetitorView() {
   );
 }
 
+/**
+ * Actionable Insights View
+ * Maps aggregated NLP data into HR strategy recommendations.
+ */
 function ActionsView() {
   return (
     <div className="max-w-5xl animate-in fade-in duration-500 space-y-6">
