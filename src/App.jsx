@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { BarChart2, Target, MessageSquare, Lightbulb, Menu, X, Filter } from 'lucide-react';
-import DashboardView from './components/DashboardView';
-import CompetitorView from './components/CompetitorView';
-import RagChatView from './components/RagChatView';
-import ActionsView from './components/ActionsView';
+
+// Performance Optimization. These components are now dynamically imported ("code-split") to avoid VITe warning regarding size. 
+const DashboardView = React.lazy(() => import('./components/DashboardView'));
+const CompetitorView = React.lazy(() => import('./components/CompetitorView'));
+const RagChatView = React.lazy(() => import('./components/RagChatView'));
+const ActionsView = React.lazy(() => import('./components/ActionsView'));
 
 /**
  * Main Front-End Application Shell
@@ -21,9 +23,10 @@ export default function App() {
   ]);
   const [chatDocs, setChatDocs] = useState([]);
 
+  //Navigation Handlier
   const handleNavClick = (tab) => {
     setActiveTab(tab);
-    setIsMobileMenuOpen(false);
+    setIsMobileMenuOpen(false); //Ensure Clean UX on mobile by closing the menu after selection
   };
 
   return (
@@ -37,6 +40,7 @@ export default function App() {
         />
       )}
 
+      {/* Sidebar Navigation */}
       <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-30 transition-transform duration-300 ease-in-out ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
@@ -57,6 +61,7 @@ export default function App() {
           <NavItem icon={<Lightbulb />} label="Strategie & Actions" active={activeTab === 'actions'} onClick={() => handleNavClick('actions')} />
         </nav>
         
+        {/* System Status Indicator. Currently hard-coded, for production should reflect actual connection to model and data base */}
         <div className="p-5 border-t border-slate-800 text-xs text-slate-400 bg-slate-950/50 leading-relaxed">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -67,6 +72,7 @@ export default function App() {
         </div>
       </aside>
 
+      {/* Main Content Viewport */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-sm shrink-0">
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -81,6 +87,7 @@ export default function App() {
             </h1>
           </div>
           
+          {/* Global Filter: Only renders when contextually relevant */}
           {activeTab === 'dashboard' && (
             <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
               <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200 w-full md:w-auto">
@@ -91,6 +98,7 @@ export default function App() {
                   onChange={(e) => setDepartment(e.target.value)}
                   className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2 w-full md:w-auto truncate"
                 >
+                  {/* In Production, data should be fetched dynamically depending on Global Filter */} 
                   <option value="all">Alle Bereiche (Konzern)</option>
                   <option value="production">Nur Produktion / Werke</option>
                   <option value="admin">Nur Verwaltung / IT</option>
@@ -101,23 +109,30 @@ export default function App() {
         </header>
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          {activeTab === 'dashboard' && <DashboardView department={department} />}
-          {activeTab === 'competitor' && <CompetitorView />}
-          {activeTab === 'chat' && (
-            <RagChatView 
-              messages={chatMessages} 
-              setMessages={setChatMessages} 
-              retrievedDocs={chatDocs}
-              setRetrievedDocs={setChatDocs}
-            />
-          )}
-          {activeTab === 'actions' && <ActionsView />}
+          {/* Suspense boundary catches the loading state of dynamically imported chunks */}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-full text-slate-400 text-sm font-medium">
+               Modul wird geladen...
+            </div>
+          }>
+            {activeTab === 'dashboard' && <DashboardView department={department} />}
+            {activeTab === 'competitor' && <CompetitorView />}
+            {activeTab === 'chat' && (
+              <RagChatView 
+                messages={chatMessages} 
+                setMessages={setChatMessages} 
+                retrievedDocs={chatDocs}
+                setRetrievedDocs={setChatDocs}
+              />
+            )}
+            {activeTab === 'actions' && <ActionsView />}
+          </Suspense>
         </div>
       </main>
     </div>
   );
 }
-
+// Reusable navigation item component
 function NavItem({ icon, label, active, onClick }) {
   return (
     <button 

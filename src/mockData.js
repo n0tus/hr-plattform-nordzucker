@@ -8,8 +8,8 @@
 /**
  * Mock Data Repository
  * * In a production environment, these datasets would be dynamically fetched 
- * via REST APIs or GraphQL from a backend database (e.g., PostgreSQL) 
- * and a vector database (e.g., ChromaDB).
+ * via REST APIs or GraphQL from a backend database (e.g., PostgreSQL, to fetch structured metrics like Scores) 
+ * and a vector database (e.g., ChromaDB, to fetch unstructured text).
  */
 
 export const baseSentiment = {
@@ -58,6 +58,7 @@ export const baseTopics = {
   ]
 };
 
+//Simulated competitor benchmarking metrics
 export const competitorData = [
   { subject: 'Work-Life-Balance', Nordzucker: 4.1, Südzucker: 3.7, PfeiferLangen: 3.3, fullMark: 5 },
   { subject: 'Gehalt & Soziales', Nordzucker: 4.2, Südzucker: 4.3, PfeiferLangen: 3.8, fullMark: 5 },
@@ -75,6 +76,7 @@ export const regionalCompetitorData = [
   { subject: 'Kultur', Nordzucker: 3.9, VW_FS: 4.1, Siemens: 3.7, NewYorker: 2.9, fullMark: 5 },
 ];
 
+//Simulated Vector Database entries for the RAG
 export const reviewDatabase = [
   { id: 1, source: "Kununu (Bewerber)", date: "Juni 2024", text: "Nach über einem Monat völliger Funkstille kam ein Anruf mit Rückfragen. Letztlich erhielt ich eine Standardabsage ohne jegliches Feedback, also insgesamt über zwei Monate nach meiner Bewerbung. Keine Zwischenbescheide oder transparente Kommunikation. Stattdessen hatte ich am Ende das deutliche Gefühl, nur 'zweite Wahl' gewesen zu sein und warmgehalten zu werden." },
   { id: 2, source: "Kununu (Bewerber)", date: "Januar 2025", text: "Es wird der 200% Kandidat gesucht - beim heutigen Arbeitsmarkt allerdings sollte man sich schneller entscheiden. Ganz ehrlich: Man braucht keine zwei Monate, um über eine Bewerbung zu entscheiden. Schon gar nicht, wenn in der Ausschreibung 'ab sofort' steht." },

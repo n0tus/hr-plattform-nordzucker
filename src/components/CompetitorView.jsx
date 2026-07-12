@@ -3,6 +3,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Info, Target, AlertCircle, CheckCircle, MapPin } from 'lucide-react';
 import { competitorData, regionalCompetitorData } from '../mockData';
 
+/**
+ * Competitor Analysis Dashboard
+ * 
+ * Visualizes benchmarking data against industry and regional peers.
+ * Implements min-width wrappers and overflow-x-auto to prevent chart 
+ * squishing on narrow mobile screens.
+ * Analyses are currently hard-coded in Front-End. For production, these comparisons metrics would be regularly updated and send to the AI for analysis.
+ */
 export default function CompetitorView() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -14,6 +22,7 @@ export default function CompetitorView() {
         </div>
       </div>
 
+      {/* Industry Chart Container */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 overflow-x-auto">
           <div className="flex justify-between items-center mb-4 min-w-[500px]">
@@ -35,6 +44,7 @@ export default function CompetitorView() {
           </div>
         </div>
 
+        {/* Actionable Strengths/Weaknesses Extracted from Benchmarks and given as a response by LLM*/}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <h3 className="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2"><Target size={18}/> Industrie-USPs</h3>
@@ -66,6 +76,7 @@ export default function CompetitorView() {
         </div>
       </div>
 
+      {/* Regional Chart Container */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 relative overflow-hidden overflow-x-auto">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>

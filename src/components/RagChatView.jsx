@@ -2,11 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bot, User, AlertCircle, Send, Zap, Database } from 'lucide-react';
 import { reviewDatabase } from '../mockData';
 
+
+/**
+ * Conversational Interface towards RAG-Architecture
+ * 
+ * Props:
+ * @param {Array} messages - Lifted state containing the conversation history.
+ * @param {Function} setMessages - State setter for updating conversation.
+ * @param {Array} retrievedDocs - Lifted state containing vector database contexts.
+ * @param {Function} setRetrievedDocs - State setter for retrieved chunks.
+ */
 export default function RagChatView({ messages, setMessages, retrievedDocs, setRetrievedDocs }) {
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false); // Controls loading indicators and prevents double-submissions
   const chatEndRef = useRef(null);
 
+  // Auto-scroll: Triggers whenever messages array updates or typing status changes
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
@@ -14,20 +25,23 @@ export default function RagChatView({ messages, setMessages, retrievedDocs, setR
   const sendQuery = (queryText) => {
     if (!queryText.trim()) return;
 
+    // 1. Append user input to UI optimistically
     const userMsg = { role: 'user', content: queryText };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsTyping(true);
     setRetrievedDocs([]);
 
+    // 2. Simulate latency for Extracting Data from Vector Database. For production, this would be replaced by actual LLM + Vector DB calls.
     setTimeout(() => {
       const lowerInput = queryText.toLowerCase();
       let matchedDocs = [];
       let aiResponseText = "Entschuldigung, für diese spezifische Anfrage habe ich im aktuellen Prototypen keine Daten hinterlegt. Bitte nutzen Sie den vorgesehenen Demo-Prompt für die Bewerberanalyse.";
 
+      // Keyword matching (Simulating semantic vector search)
       if (lowerInput.includes("bewerber") && lowerInput.includes("prozess") ) {
         matchedDocs = reviewDatabase; 
-        
+        //Simulated Model response based on input prompt and synthetic data.
         aiResponseText = `Basierend auf der Analyse aktueller, verifizierter Bewerber-Bewertungen aus unserer ChromaDB gibt es im Recruiting-Prozess der Nordzucker AG akuten Handlungsbedarf. Die Kritikpunkte konzentrieren sich auf folgende Kernbereiche:
 
 1. **Fehlende Transparenz:** Bewerber bemängeln das Ausbleiben von Zwischenbescheiden. Es wird von "völliger Funkstille" und nicht eingehaltenen Rückmeldefristen berichtet.
@@ -38,7 +52,7 @@ export default function RagChatView({ messages, setMessages, retrievedDocs, setR
       }
 
       setRetrievedDocs(matchedDocs);
-      
+      //Simulated latency for LLM response generation.
       setTimeout(() => {
         setMessages(prev => [...prev, { role: 'assistant', content: aiResponseText }]);
         setIsTyping(false);
@@ -91,12 +105,15 @@ export default function RagChatView({ messages, setMessages, retrievedDocs, setR
           <div ref={chatEndRef} />
         </div>
 
+        {/* Input Controls */}
         <div className="p-4 md:p-5 bg-white border-t border-slate-200">
+          {/* Quick-Action Prompts, currenltly simulated */}
           <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
             <button 
               onClick={() => sendQuery("Warum kritisieren Bewerber den Prozess?")}
               className="whitespace-nowrap flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-sm font-semibold hover:bg-emerald-100 transition shadow-sm"
             >
+                {/* This is an example response that is currently hardcoded in the Prototype to demonstrate the concept */}
               <AlertCircle size={16} />"Warum kritisieren Bewerber den Prozess?"
             </button>
           </div>
@@ -105,7 +122,7 @@ export default function RagChatView({ messages, setMessages, retrievedDocs, setR
             <input 
               type="text"
               value={input}
-              disabled={isTyping}
+              disabled={isTyping} // Prevents user input while awaiting response
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendQuery(input)}
               placeholder="Query parameter..."
@@ -114,7 +131,7 @@ export default function RagChatView({ messages, setMessages, retrievedDocs, setR
             <button 
               aria-label="Nachricht senden"
               onClick={() => sendQuery(input)}
-              disabled={!input.trim() || isTyping}
+              disabled={!input.trim() || isTyping} // Prevents empty or duplicate submissions
               className="bg-emerald-600 text-white px-4 md:px-5 py-3 rounded-xl font-medium hover:bg-emerald-700 transition disabled:opacity-50 flex items-center justify-center shadow-sm"
             >
               <Send size={18} />
@@ -123,6 +140,7 @@ export default function RagChatView({ messages, setMessages, retrievedDocs, setR
         </div>
       </div>
 
+      {/* Right Pane Side: Context Visualization */}
       <div className="space-y-6 overflow-y-auto">
         <div className="bg-slate-900 text-white rounded-xl shadow-lg p-6">
           <h3 className="font-bold flex items-center gap-2 mb-3 text-emerald-400"><Zap size={18}/> RAG Transparenz</h3>

@@ -1,15 +1,22 @@
 import React from 'react';
 import { Clock, Briefcase, TrendingUp } from 'lucide-react';
 
+/**
+ * Actionable Insights Dashboard
+ * Represents the final stage of the Data-to-Value pipeline, mapping 
+ * insights derived from unstructured NLP analysis into concrete HR initiatives. Derrived from the RAG-LLM analysis, these actions are prioritized based on severity and potential impact.
+ */
 export default function ActionsView() {
   return (
-    <div className="max-w-5xl animate-in fade-in duration-500 space-y-6">
+    <div className="max-w-5xl animate-in fade-in duration-500 space-y-6">^
+      {/* View Header */}
       <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
         <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">Data to Value Pipeline</h2>
         <p className="text-sm md:text-base text-slate-600">Aus der Menge an Bewertungen hat die KI folgende strategische Initiativen abgeleitet.</p>
       </div>
+      {/* Action Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+        {/* Initiative 1 */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1.5 h-full bg-red-500"></div>
           <div className="flex items-center gap-3 mb-4">
@@ -28,7 +35,7 @@ export default function ActionsView() {
             </ul>
           </div>
         </div>
-
+        {/* Initiative 2 */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500"></div>
           <div className="flex items-center gap-3 mb-4">
@@ -48,6 +55,7 @@ export default function ActionsView() {
           </div>
         </div>
 
+        {/* Initiative 3 (Span full width) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden md:col-span-2">
           <div className="absolute top-0 right-0 w-1.5 h-full bg-blue-500"></div>
           <div className="flex items-center gap-3 mb-4">
