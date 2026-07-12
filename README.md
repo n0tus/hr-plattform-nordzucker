@@ -1,7 +1,28 @@
+# HR Intelligence & Employer Branding Platform
 # DBE_Nordzucker_HR_Plattform_Gruppe_12
-# React + Vite
+# Gruppe 12: Ole Thorben Aust, Maxim Genrich, Arne Jonas Borbe, Lars Niebuhr 
 
-This prototype was initially created using Gemini Code. Further improvements and changes were added manually. The Prototype currently consists of a Front-End Dashboard. The extraction using Web-Scraper and storage using ChromaDB were not implemented. The Dashboard shows examplatory data currently hard-coded in the mockData.js File. 
+This repository contains the frontend prototype developed as part of the Digital Business Engineering seminar at TU Braunschweig. The application demonstrates a data-driven HR platform that aggregates employer reviews and utilizes a simulated Retrieval-Augmented Generation (RAG) AI to derive strategic insights.
+
+This prototype was initially created using Gemini Code. Further improvements and changes were added manually. The Prototype currently consists of a Front-End Dashboard. 
+The extraction using Web-Scraper and Sotrage using ChromaDB were not implemented. 
+The Dashboard currently shows examplatory data that is hard-coded in the "mockData.js" file.
+
+## 🚀 Live Demo
+[Live Demo hosted on Github](https://n0tus.github.io/hr-plattform-nordzucker/)]
+
+## Features
+* **Employer Branding Dashboard:** Visualizes sentiment analysis, NLP topic clustering, and key HR metrics (e.g., Kununu scores).
+* **Competitor Benchmarking:** Compares Nordzucker's metrics against direct industry competitors and regional talent rivals.
+* **RAG Simulation:** A conversational interface simulating an LLM (Gemini) grounded by a vector database (ChromaDB). It maps user queries to specific candidate reviews to prevent hallucination.
+* **Data-to-Value Pipeline:** Derives actionable, prioritized HR initiatives from unstructured NLP data.
+
+## Technical Architecture
+This prototype was built with modern web engineering tools to ensure scalability, performance, and maintainability:
+* **Tech Stack:** React, Vite, Tailwind CSS (v4), Recharts.
+* **Separation of Data:** Strict decoupling of UI components from the simulated backend data (`mockData.js`), allowing for easy future integration with actual REST/GraphQL APIs and PostgreSQL/ChromaDB.
+* **State Management:** Utilizes "State Lifting" via CSS toggles to ensure continuous chat history and user input retention across component unmounts and tab navigation.
+
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
