@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+<<<<<<< HEAD
   PieChart, Pie, Cell, LineChart, Line
+=======
+  PieChart, Pie, Cell, AreaChart, Area, LineChart, Line
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
 } from 'recharts';
 import { 
   MessageSquare, BarChart2, Target, Search, 
   Send, Bot, User, AlertCircle, CheckCircle, TrendingUp, Briefcase, Zap, Info, Clock, MapPin,
+<<<<<<< HEAD
   Filter, BellRing, Lightbulb, Database, Menu, X
 } from 'lucide-react';
 
@@ -66,6 +71,96 @@ export default function App() {
           <NavItem icon={<MessageSquare />} label="KI-Assistent (RAG)" active={activeTab === 'chat'} onClick={() => handleNavClick('chat')} />
           <NavItem icon={<Lightbulb />} label="Strategie & Actions" active={activeTab === 'actions'} onClick={() => handleNavClick('actions')} />
         </nav>
+=======
+  Filter, BellRing, Lightbulb, Database, FileText
+} from 'lucide-react';
+
+// ECHTE DATEN: Aggregiert von Kununu & Glassdoor
+const baseSentiment = {
+  all: [
+    { name: 'Positiv', value: 88, color: '#10b981' },
+    { name: 'Neutral', value: 8, color: '#fbbf24' },
+    { name: 'Negativ', value: 4, color: '#ef4444' }
+  ],
+  production: [
+    { name: 'Positiv', value: 75, color: '#10b981' },
+    { name: 'Neutral', value: 15, color: '#fbbf24' },
+    { name: 'Negativ', value: 10, color: '#ef4444' }
+  ],
+  admin: [
+    { name: 'Positiv', value: 92, color: '#10b981' },
+    { name: 'Neutral', value: 5, color: '#fbbf24' },
+    { name: 'Negativ', value: 3, color: '#ef4444' }
+  ]
+};
+
+const baseTopics = {
+  all: [
+    { topic: 'Arbeitsbed.', positiv: 84, negativ: 16 },
+    { topic: 'Work-Life', positiv: 82, negativ: 18 },
+    { topic: 'Gehalt', positiv: 84, negativ: 16 },
+    { topic: 'Karriere', positiv: 70, negativ: 30 },
+    { topic: 'Bewerbung', positiv: 48, negativ: 52 },
+  ],
+  production: [
+    { topic: 'Arbeitsbed.', positiv: 65, negativ: 35 }, 
+    { topic: 'Work-Life', positiv: 60, negativ: 40 }, 
+    { topic: 'Gehalt', positiv: 88, negativ: 12 }, 
+    { topic: 'Karriere', positiv: 50, negativ: 50 },
+    { topic: 'Bewerbung', positiv: 55, negativ: 45 },
+  ],
+  admin: [
+    { topic: 'Arbeitsbed.', positiv: 95, negativ: 5 }, 
+    { topic: 'Work-Life', positiv: 92, negativ: 8 },
+    { topic: 'Gehalt', positiv: 75, negativ: 25 }, 
+    { topic: 'Karriere', positiv: 78, negativ: 22 },
+    { topic: 'Bewerbung', positiv: 45, negativ: 55 },
+  ]
+};
+
+const competitorData = [
+  { subject: 'Work-Life-Balance', Nordzucker: 4.1, Südzucker: 3.7, PfeiferLangen: 3.3, fullMark: 5 },
+  { subject: 'Gehalt & Soziales', Nordzucker: 4.2, Südzucker: 4.3, PfeiferLangen: 3.8, fullMark: 5 },
+  { subject: 'Karriere/Weiterbildung', Nordzucker: 3.5, Südzucker: 3.6, PfeiferLangen: 2.9, fullMark: 5 },
+  { subject: 'Kultur & Kollegen', Nordzucker: 3.9, Südzucker: 3.8, PfeiferLangen: 3.1, fullMark: 5 },
+  { subject: 'Kommunikation', Nordzucker: 3.5, Südzucker: 3.3, PfeiferLangen: 2.7, fullMark: 5 },
+  { subject: 'Arbeitsbedingungen', Nordzucker: 4.2, Südzucker: 3.9, PfeiferLangen: 3.4, fullMark: 5 },
+];
+
+const regionalCompetitorData = [
+  { subject: 'Gesamt-Score', Nordzucker: 3.8, VW_FS: 4.2, Siemens: 3.9, NewYorker: 3.1, fullMark: 5 },
+  { subject: 'Work-Life-Balance', Nordzucker: 4.1, VW_FS: 4.0, Siemens: 3.8, NewYorker: 2.8, fullMark: 5 },
+  { subject: 'Gehalt & Soziales', Nordzucker: 4.2, VW_FS: 4.5, Siemens: 4.0, NewYorker: 3.0, fullMark: 5 },
+  { subject: 'Karriere & Aufstieg', Nordzucker: 3.5, VW_FS: 3.9, Siemens: 3.7, NewYorker: 3.1, fullMark: 5 },
+  { subject: 'Kultur', Nordzucker: 3.9, VW_FS: 4.1, Siemens: 3.7, NewYorker: 2.9, fullMark: 5 },
+];
+
+
+export default function NordzuckerHRPrototype() {
+  const [activeTab, setActiveTab] = useState('chat'); // Startet direkt im Chat für den Pitch
+  const [department, setDepartment] = useState('all'); 
+
+  return (
+    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans">
+      
+      {/* Sidebar */}
+      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-xl z-20">
+        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
+          <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center text-white font-bold text-xl">
+            N
+          </div>
+          <span className="text-xl font-bold text-white tracking-tight">HR Intelligence</span>
+        </div>
+        
+        <nav className="flex-1 py-6 px-4 space-y-2">
+          <NavItem icon={<BarChart2 />} label="Live Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+          <NavItem icon={<Target />} label="Wettbewerb" active={activeTab === 'competitor'} onClick={() => setActiveTab('competitor')} />
+          <NavItem icon={<MessageSquare />} label="KI-Assistent (RAG)" active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
+          <NavItem icon={<Lightbulb />} label="Strategie & Actions" active={activeTab === 'actions'} onClick={() => setActiveTab('actions')} />
+        </nav>
+        
+        {/* Angepasster Footer mit Gemini Modell */}
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
         <div className="p-5 border-t border-slate-800 text-xs text-slate-400 bg-slate-950/50 leading-relaxed">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -76,6 +171,7 @@ export default function App() {
         </div>
       </aside>
 
+<<<<<<< HEAD
       {/* Main Viewport */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-sm shrink-0">
@@ -102,6 +198,28 @@ export default function App() {
                   className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2 w-full md:w-auto truncate"
                 >
                   {/* Right now not fully implemented due to lack of data. In final product, data should only be shown depending on department */}
+=======
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Header */}
+        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center z-10 shadow-sm shrink-0">
+          <h1 className="text-2xl font-bold text-slate-800">
+            {activeTab === 'dashboard' && 'Employer Branding Dashboard'}
+            {activeTab === 'competitor' && 'Wettbewerbsvergleich'}
+            {activeTab === 'chat' && 'RAG Copilot (Gemini Enterprise)'}
+            {activeTab === 'actions' && 'KI-Empfohlene Handlungsfelder'}
+          </h1>
+          
+          {activeTab === 'dashboard' && (
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 border border-slate-200">
+                <Filter size={16} className="text-slate-500 ml-2" />
+                <select 
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none cursor-pointer py-1 pr-2"
+                >
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
                   <option value="all">Alle Bereiche (Konzern)</option>
                   <option value="production">Nur Produktion / Werke</option>
                   <option value="admin">Nur Verwaltung / IT</option>
@@ -111,8 +229,13 @@ export default function App() {
           )}
         </header>
 
+<<<<<<< HEAD
         {/* Dynamic Component Rendering */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
+=======
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-8">
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
           {activeTab === 'dashboard' && <DashboardView department={department} />}
           {activeTab === 'competitor' && <CompetitorView />}
           {activeTab === 'chat' && <RagChatView />}
@@ -123,10 +246,13 @@ export default function App() {
   );
 }
 
+<<<<<<< HEAD
 // ----------------------------------------------------------------------
 // SUB-COMPONENTS
 // ----------------------------------------------------------------------
 
+=======
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
 function NavItem({ icon, label, active, onClick }) {
   return (
     <button 
@@ -136,11 +262,16 @@ function NavItem({ icon, label, active, onClick }) {
       }`}
     >
       {React.cloneElement(icon, { size: 20 })}
+<<<<<<< HEAD
       <span className="font-medium truncate">{label}</span>
+=======
+      <span className="font-medium">{label}</span>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
     </button>
   );
 }
 
+<<<<<<< HEAD
 /**
  * Chat Interface Component
  * Simulates a Retrieval-Augmented Generation (RAG) conversational interface.
@@ -148,13 +279,28 @@ function NavItem({ icon, label, active, onClick }) {
 function RagChatView() {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Guten Tag. Ich bin das Gemini RAG-System für Nordzucker. Mein Systemkontext ist geladen. Wie kann ich die aktuellen Unternehmensdaten für Sie auswerten?' }
+=======
+function RagChatView() {
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: 'Guten Tag. Ich bin das Gemini RAG-System für Nordzucker. Mein "Wissens-Gedächtnis" ist geladen und bereit. Wie kann ich die aktuellen Unternehmensdaten für Sie auswerten?' }
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [retrievedDocs, setRetrievedDocs] = useState([]);
   const chatEndRef = useRef(null);
 
+<<<<<<< HEAD
   // Auto-scroll to the latest message
+=======
+  // Echte Kununu-Daten (Recherchiert)
+  const reviewDatabase = [
+    { id: 1, source: "Kununu (Bewerber)", date: "Juni 2024", text: "Nach über einem Monat völliger Funkstille kam ein Anruf mit Rückfragen. Letztlich erhielt ich eine Standardabsage ohne jegliches Feedback, also insgesamt über zwei Monate nach meiner Bewerbung. Keine Zwischenbescheide oder transparente Kommunikation. Stattdessen hatte ich am Ende das deutliche Gefühl, nur 'zweite Wahl' gewesen zu sein und warmgehalten zu werden." },
+    { id: 2, source: "Kununu (Bewerber)", date: "Januar 2025", text: "Es wird der 200% Kandidat gesucht - beim heutigen Arbeitsmarkt allerdings sollte man sich schneller entscheiden. Ganz ehrlich: Man braucht keine zwei Monate, um über eine Bewerbung zu entscheiden. Schon gar nicht, wenn in der Ausschreibung 'ab sofort' steht." },
+    { id: 3, source: "Kununu (Bewerber)", date: "Juli 2023", text: "Positiver Eindruck, den das Unternehmen nach dem zweiten Gespräch ins Gegenteil verändert hat. Dem Bewerber eine Rückmeldung zukommen lassen, wenn das seitens des Unternehmens im Gespräch schon so avisiert wird, sollte wohl drin sein." }
+  ];
+
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
@@ -168,6 +314,7 @@ function RagChatView() {
     setIsTyping(true);
     setRetrievedDocs([]);
 
+<<<<<<< HEAD
     // Simulate network latency and RAG retrieval processing
     setTimeout(() => {
       const lowerInput = queryText.toLowerCase();
@@ -179,6 +326,18 @@ function RagChatView() {
         matchedDocs = reviewDatabase; 
         
         {/* Hardcoded AI Response for Prototype Demonstration. Since there is no actual connection right now, we generated this manually based on the prompt */}
+=======
+    // Simuliert Ladezeit für Retrieval & Generierung
+    setTimeout(() => {
+      const lowerInput = queryText.toLowerCase();
+      let matchedDocs = [];
+      let aiResponseText = "Entschuldigung, für diese spezifische Anfrage habe ich im aktuellen Offline-Prototypen keine Daten hinterlegt. Bitte nutzen Sie den vorgesehenen Demo-Prompt für die Bewerberanalyse.";
+
+      // Logik für unsere fest definierte Frage
+      if (lowerInput.includes("bewerber") || lowerInput.includes("prozess") || lowerInput.includes("warum")) {
+        matchedDocs = reviewDatabase; 
+        
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
         aiResponseText = `Basierend auf der Analyse aktueller, verifizierter Bewerber-Bewertungen aus unserer ChromaDB gibt es im Recruiting-Prozess der Nordzucker AG akuten Handlungsbedarf. Die Kritikpunkte konzentrieren sich auf folgende Kernbereiche:
 
 1. **Fehlende Transparenz:** Bewerber bemängeln das Ausbleiben von Zwischenbescheiden. Es wird von "völliger Funkstille" und nicht eingehaltenen Rückmeldefristen berichtet.
@@ -190,7 +349,11 @@ function RagChatView() {
 
       setRetrievedDocs(matchedDocs);
       
+<<<<<<< HEAD
       // Simulate LLM generation time. Remove for final implementation when connected to actual model
+=======
+      // Simuliert die Tipp-Zeit des Gemini-Modells
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
       setTimeout(() => {
         setMessages(prev => [...prev, { role: 'assistant', content: aiResponseText }]);
         setIsTyping(false);
@@ -199,6 +362,7 @@ function RagChatView() {
   };
 
   return (
+<<<<<<< HEAD
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-160px)] md:h-[calc(100vh-140px)] animate-in fade-in duration-500">
       <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
         
@@ -206,13 +370,28 @@ function RagChatView() {
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50/50">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex gap-3 md:gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+=======
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)] animate-in fade-in duration-500">
+      
+      {/* Linke Seite: Chat-Bereich (Nimmt 2 Spalten ein) */}
+      <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+        
+        {/* Chat Verlauf */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
               {msg.role === 'assistant' && (
                 <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-1">
                   <Bot size={16} className="text-emerald-700" />
                 </div>
               )}
               
+<<<<<<< HEAD
               <div className={`px-4 md:px-5 py-3 md:py-4 rounded-2xl text-sm max-w-[90%] md:max-w-[85%] shadow-sm ${
+=======
+              <div className={`px-5 py-4 rounded-2xl text-sm max-w-[85%] shadow-sm ${
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
                 msg.role === 'user' 
                   ? 'bg-slate-800 text-white rounded-br-none' 
                   : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none whitespace-pre-wrap leading-relaxed'
@@ -228,7 +407,10 @@ function RagChatView() {
             </div>
           ))}
           
+<<<<<<< HEAD
           {/* Loading Indicator */}
+=======
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
           {isTyping && (
             <div className="flex gap-4 justify-start">
                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-1">
@@ -238,37 +420,65 @@ function RagChatView() {
                   <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
                   <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                   <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+<<<<<<< HEAD
                   <span className="text-xs text-slate-500 ml-2 font-medium hidden md:inline">Verarbeite Kontext...</span>
+=======
+                  <span className="text-xs text-slate-500 ml-2 font-medium">Gemini verarbeitet Kontext...</span>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
                 </div>
             </div>
           )}
           <div ref={chatEndRef} />
         </div>
 
+<<<<<<< HEAD
         {/* Input Area. This is the demo question for the Model connection*/}
         <div className="p-4 md:p-5 bg-white border-t border-slate-200">
+=======
+        {/* Eingabebereich */}
+        <div className="p-5 bg-white border-t border-slate-200">
+          
+          {/* Prompt Pills */}
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
           <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
             <button 
               onClick={() => sendQuery("Warum kritisieren Bewerber den Prozess?")}
               className="whitespace-nowrap flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-sm font-semibold hover:bg-emerald-100 transition shadow-sm"
             >
+<<<<<<< HEAD
               <AlertCircle size={16} />"Warum kritisieren Bewerber den Prozess?"
             </button>
           </div>
 
           <div className="flex gap-2 md:gap-3">
+=======
+              <AlertCircle size={16} />
+              "Warum kritisieren Bewerber den Prozess?"
+            </button>
+          </div>
+
+          <div className="flex gap-3">
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
             <input 
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendQuery(input)}
+<<<<<<< HEAD
               placeholder="Query parameter..."
+=======
+              placeholder="Stellen Sie eine strategische HR-Frage an die Daten..."
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
               className="flex-1 px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
             />
             <button 
               onClick={() => sendQuery(input)}
               disabled={!input.trim() || isTyping}
+<<<<<<< HEAD
               className="bg-emerald-600 text-white px-4 md:px-5 py-3 rounded-xl font-medium hover:bg-emerald-700 transition disabled:opacity-50 flex items-center justify-center shadow-sm"
+=======
+              className="bg-emerald-600 text-white px-5 py-3 rounded-xl font-medium hover:bg-emerald-700 transition disabled:opacity-50 flex items-center gap-2 shadow-sm"
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
             >
               <Send size={18} />
             </button>
@@ -276,12 +486,20 @@ function RagChatView() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* RAG Context Panel */}
+=======
+      {/* Rechte Seite: ChromaDB Panel */}
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
       <div className="space-y-6 overflow-y-auto">
         <div className="bg-slate-900 text-white rounded-xl shadow-lg p-6">
           <h3 className="font-bold flex items-center gap-2 mb-3 text-emerald-400"><Zap size={18}/> RAG Transparenz</h3>
           <p className="text-sm text-slate-300 leading-relaxed">
+<<<<<<< HEAD
             LLM-Antworten werden durch Vektordatenbankabfragen (ChromaDB) geerdet, um deterministische und nachvollziehbare Ergebnisse zu gewährleisten.
+=======
+            Um Halluzinationen zu verhindern, greift das Gemini-Modell auf echte Textfragmente aus unserer Vektordatenbank (ChromaDB) zu.
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
           </p>
         </div>
 
@@ -289,7 +507,11 @@ function RagChatView() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-right duration-500">
             <h3 className="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wider flex items-center gap-2">
               <Database size={16} className="text-blue-500"/> 
+<<<<<<< HEAD
               Extrahierte Metadaten
+=======
+              Extrahierte Fakten (Kontext)
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
             </h3>
             <div className="space-y-4">
               {retrievedDocs.map((doc, idx) => (
@@ -312,16 +534,28 @@ function RagChatView() {
           </div>
         )}
       </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
     </div>
   );
 }
 
+<<<<<<< HEAD
 /**
  * Dashboard View
  * Renders high-level KPIs and sentiment analysis charts based on department filters.
  */
 function DashboardView({ department }) {
   // Static KPI definitions mapping to the department state
+=======
+// ----------------------------------------------------------------------
+// RESTLICHES DASHBOARD (Komponenten für Dashboards und Wettbewerb)
+// ----------------------------------------------------------------------
+
+function DashboardView({ department }) {
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
   const kpis = {
     all: { score: '3.8', rec: '88%', top: 'Arbeitsbed.', crit: 'Bewerbung', trend: [3.7, 3.7, 3.8, 3.8, 3.8, 4.1] },
     production: { score: '3.6', rec: '76%', top: 'Gehalt', crit: 'Work-Life', trend: [3.5, 3.5, 3.4, 3.6, 3.6, 3.6] },
@@ -329,6 +563,7 @@ function DashboardView({ department }) {
   };
   
   const currentKpi = kpis[department];
+<<<<<<< HEAD
   
   // Format trend array into chart-compatible objects
   const trendData = currentKpi.trend.map((score, i) => ({ 
@@ -339,6 +574,13 @@ function DashboardView({ department }) {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Predictive Alert Banner */}
+=======
+  const trendData = currentKpi.trend.map((score, i) => ({ month: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun'][i], score }));
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
       {department === 'production' && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-4 text-amber-800 shadow-sm items-start">
           <BellRing className="shrink-0 text-amber-600 animate-bounce" />
@@ -349,15 +591,22 @@ function DashboardView({ department }) {
         </div>
       )}
 
+<<<<<<< HEAD
       {/* KPI Metrics Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+=======
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
         <KPICard title="Kununu Score (Filter)" value={currentKpi.score} icon={<Search className="text-blue-500" />} trend="Ø Branche: 3.5" />
         <KPICard title="Weiterempfehlung" value={currentKpi.rec} icon={<CheckCircle className="text-emerald-500" />} trend="Verifizierte Daten" />
         <KPICard title="Top Stärke" value={currentKpi.top} icon={<TrendingUp className="text-emerald-500" />} trend="Aus Text-Mining" />
         <KPICard title="Kritisches Feld" value={currentKpi.crit} icon={<AlertCircle className="text-red-500" />} trend="Prio HR-Maßnahme" isCritical={true} />
       </div>
 
+<<<<<<< HEAD
       {/* Chart Visualizations */}
+=======
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold mb-1 text-slate-800">Stimmung</h3>
@@ -398,9 +647,15 @@ function DashboardView({ department }) {
           <p className="text-xs text-slate-500 mb-4">Prozentuale Verteilung von Positiv/Negativ in Bewertungen</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
+<<<<<<< HEAD
               <BarChart data={baseTopics[department]} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
                 <XAxis dataKey="topic" tick={{fontSize: 10}} axisLine={false} tickLine={false} />
+=======
+              <BarChart data={baseTopics[department]} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                <XAxis dataKey="topic" tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
                 <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false}/>
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }}/>
                 <Legend />
@@ -417,17 +672,27 @@ function DashboardView({ department }) {
 
 function KPICard({ title, value, icon, trend, isCritical = false }) {
   return (
+<<<<<<< HEAD
     <div className={`bg-white p-5 rounded-xl shadow-sm border ${isCritical ? 'border-red-200 bg-red-50/20' : 'border-slate-100'} hover:shadow-md transition-shadow`}>
       <div className="flex justify-between items-start mb-3">
         <h4 className="text-slate-500 font-medium text-sm">{title}</h4>
         <div className={`p-2 rounded-lg shrink-0 ${isCritical ? 'bg-red-100' : 'bg-slate-50'}`}>{icon}</div>
       </div>
       <div className={`text-2xl md:text-3xl font-bold mb-1 ${isCritical ? 'text-red-600' : 'text-slate-800'}`}>{value}</div>
+=======
+    <div className={`bg-white p-6 rounded-xl shadow-sm border ${isCritical ? 'border-red-200 bg-red-50/20' : 'border-slate-100'} hover:shadow-md transition-shadow`}>
+      <div className="flex justify-between items-start mb-4">
+        <h4 className="text-slate-500 font-medium text-sm">{title}</h4>
+        <div className={`p-2 rounded-lg ${isCritical ? 'bg-red-100' : 'bg-slate-50'}`}>{icon}</div>
+      </div>
+      <div className={`text-3xl font-bold mb-1 ${isCritical ? 'text-red-600' : 'text-slate-800'}`}>{value}</div>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
       <div className={`text-xs font-medium ${isCritical ? 'text-red-500' : 'text-slate-400'}`}>{trend}</div>
     </div>
   );
 }
 
+<<<<<<< HEAD
 /**
  * Competitor Analysis View
  * Visualizes benchmarking data against industry and regional peers.
@@ -439,11 +704,21 @@ function CompetitorView() {
         <Info className="shrink-0 mt-0.5" />
         <div>
           <h4 className="font-bold">Marktdaten & Standort-Analysen</h4>
+=======
+function CompetitorView() {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex gap-4 text-blue-800 shadow-sm">
+        <Info className="shrink-0 mt-0.5" />
+        <div>
+          <h4 className="font-bold">Echte Marktdaten & Standort-Analysen</h4>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
           <p className="text-sm mt-1">Nordzucker dominiert im Industrie-Branchenvergleich. Der Regional-Vergleich zeigt jedoch eine hohe Konkurrenzsituation bei Fachkräften am Hauptstandort Braunschweig.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<<<<<<< HEAD
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 overflow-x-auto">
           <div className="flex justify-between items-center mb-4 min-w-[500px]">
             <h3 className="text-lg font-bold text-slate-800">Industrie-Benchmark: Direkter Wettbewerb</h3>
@@ -453,6 +728,17 @@ function CompetitorView() {
               <BarChart data={competitorData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis dataKey="subject" tick={{fontSize: 10, fill: '#64748b'}} />
+=======
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-slate-800">Industrie-Benchmark: Direkter Wettbewerb</h3>
+          </div>
+          <div className="h-80 mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={competitorData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="subject" tick={{fontSize: 12, fill: '#64748b'}} />
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
                 <YAxis domain={[0, 5]} tick={{fontSize: 12, fill: '#64748b'}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }} />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
@@ -496,18 +782,32 @@ function CompetitorView() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
+<<<<<<< HEAD
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 relative overflow-hidden overflow-x-auto">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
           <div className="flex justify-between items-center mb-4 min-w-[500px]">
+=======
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+          <div className="flex justify-between items-center mb-4">
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <MapPin size={20} className="text-indigo-500"/> Regionaler Talent-Wettbewerb (Braunschweig)
             </h3>
           </div>
+<<<<<<< HEAD
           <div className="h-80 mt-4 min-w-[500px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regionalCompetitorData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis dataKey="subject" tick={{fontSize: 10, fill: '#64748b'}} />
+=======
+          <div className="h-80 mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={regionalCompetitorData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="subject" tick={{fontSize: 12, fill: '#64748b'}} />
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
                 <YAxis domain={[0, 5]} tick={{fontSize: 12, fill: '#64748b'}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }} />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
@@ -524,6 +824,7 @@ function CompetitorView() {
   );
 }
 
+<<<<<<< HEAD
 /**
  * Actionable Insights View
  * Maps aggregated NLP data into HR strategy recommendations.
@@ -543,6 +844,24 @@ function ActionsView() {
             <div className="p-3 bg-red-50 rounded-lg text-red-600 shrink-0"><Clock size={24}/></div>
             <div>
               <h3 className="font-bold text-slate-800 text-base md:text-lg">Bewerber-Experience reparieren</h3>
+=======
+function ActionsView() {
+  return (
+    <div className="max-w-5xl animate-in fade-in duration-500 space-y-6">
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Data to Value Pipeline</h2>
+        <p className="text-slate-600">Aus der Menge an Bewertungen hat die KI folgende strategische Initiativen abgeleitet.</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Card 1: Bewerbung */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-1.5 h-full bg-red-500"></div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-red-50 rounded-lg text-red-600"><Clock size={24}/></div>
+            <div>
+              <h3 className="font-bold text-slate-800 text-lg">Bewerber-Experience reparieren</h3>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
               <span className="text-xs font-medium text-slate-500">Prio: Kritisch</span>
             </div>
           </div>
@@ -556,12 +875,22 @@ function ActionsView() {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500"></div>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600 shrink-0"><Briefcase size={24}/></div>
             <div>
               <h3 className="font-bold text-slate-800 text-base md:text-lg">Offensive: Work-Life-Balance</h3>
+=======
+        {/* Card 2: Work-Life-Balance */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500"></div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600"><Briefcase size={24}/></div>
+            <div>
+              <h3 className="font-bold text-slate-800 text-lg">Offensive: Work-Life-Balance</h3>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
               <span className="text-xs font-medium text-slate-500">Prio: Hoch</span>
             </div>
           </div>
@@ -575,12 +904,22 @@ function ActionsView() {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden md:col-span-2">
           <div className="absolute top-0 right-0 w-1.5 h-full bg-blue-500"></div>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 bg-blue-50 rounded-lg text-blue-600 shrink-0"><TrendingUp size={24}/></div>
             <div>
               <h3 className="font-bold text-slate-800 text-base md:text-lg">Transparente Gehaltsentwicklungen</h3>
+=======
+        {/* Card 3: Gehalt */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden md:col-span-2">
+          <div className="absolute top-0 right-0 w-1.5 h-full bg-blue-500"></div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-blue-50 rounded-lg text-blue-600"><TrendingUp size={24}/></div>
+            <div>
+              <h3 className="font-bold text-slate-800 text-lg">Transparente Gehaltsentwicklungen</h3>
+>>>>>>> 4e1c7edac5409de2bc9fb456d43a9088b0558ae8
               <span className="text-xs font-medium text-slate-500">Prio: Mittel</span>
             </div>
           </div>
